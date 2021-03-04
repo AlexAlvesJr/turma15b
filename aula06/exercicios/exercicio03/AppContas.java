@@ -5,7 +5,7 @@ public class AppContas {
 
 
         ContaPoupanca conta = new ContaPoupanca(1234, 5000);
-        conta.setTaxaDeSaque(0.15);
+        ContaPoupanca.setTaxaDeSaque(0.15);
 
         if(conta.deposito(5000)){
             System.out.println("Depósito realizado");

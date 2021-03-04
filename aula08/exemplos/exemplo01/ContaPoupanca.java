@@ -1,4 +1,4 @@
-package exercicios.exercicio03;
+package exemplos.exemplo01;
 
 public class ContaPoupanca extends Conta{
     private static double taxaDeSaque;
