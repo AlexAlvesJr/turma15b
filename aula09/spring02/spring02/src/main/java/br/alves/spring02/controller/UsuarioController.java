@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.alves.spring02.dto.UsuarioDTO;
+import br.alves.spring02.dto.UsuarioDTO2;
+import br.alves.spring02.model.Compra;
 import br.alves.spring02.model.Usuario;
 import br.alves.spring02.repository.UsuarioRepo;
 
@@ -24,11 +27,41 @@ public class UsuarioController {
     private UsuarioRepo repo;
 
     @GetMapping("/id/{id}") // {id} é o nome da variável
-    public ResponseEntity<Usuario> obterUsuarioPorId(@PathVariable int id) { //essa anotação correlaciona a variável do getmapping com essa
+    public ResponseEntity<UsuarioDTO> obterUsuarioPorId(@PathVariable int id) { //essa anotação correlaciona a variável do getmapping com essa
         Usuario usuarioEncontrado = repo.findById(id).orElse(null);
         
         if(usuarioEncontrado != null) {
-            return ResponseEntity.ok(usuarioEncontrado);
+            UsuarioDTO userDTO = new UsuarioDTO(usuarioEncontrado);
+            return ResponseEntity.ok(userDTO);
+        }
+
+        return ResponseEntity.notFound().build(); //notFound = 404
+
+    }
+
+    @GetMapping("/idCompra/{id}") // {id} é o nome da variável
+    public ResponseEntity<UsuarioDTO2> obterComprasPorId(@PathVariable int id) { //essa anotação correlaciona a variável do getmapping com essa
+        Usuario usuarioEncontrado = repo.findById(id).orElse(null);
+        
+        if(usuarioEncontrado != null) {
+            UsuarioDTO2 userDTO2 = new UsuarioDTO2(usuarioEncontrado);
+            return ResponseEntity.ok(userDTO2);
+        }
+
+        return ResponseEntity.notFound().build(); //notFound = 404
+
+    }
+
+    @GetMapping("/compras/{id}") // {id} é o nome da variável
+    public ResponseEntity<List<Compra>> obterComprasdoUsuarioPorId(@PathVariable int id) { //essa anotação correlaciona a variável do getmapping com essa
+        Usuario usuarioEncontrado = repo.findById(id).orElse(null);
+        
+        if(usuarioEncontrado != null) {
+            List<Compra> compras = usuarioEncontrado.getCompra();
+            for (Compra compra : compras) {
+                compra.setUsuario(null);
+            }
+            return ResponseEntity.ok(compras);
         }
 
         return ResponseEntity.notFound().build(); //notFound = 404
@@ -50,6 +83,20 @@ public class UsuarioController {
         if(userFound != null) {
             userFound.setSenha("*******");
             return ResponseEntity.ok(userFound);
+        }
+        return ResponseEntity.status(404).build(); //notFound
+
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UsuarioDTO> login(@RequestBody Usuario user) {
+        Usuario userFound = repo.findByEmailOrCpf(user.getEmail(), user.getCpf());
+
+        if(userFound != null) {
+            if(user.getSenha().equals(userFound.getSenha())) {
+            UsuarioDTO userDTO = new UsuarioDTO(userFound);
+            return ResponseEntity.ok(userDTO);
+            }
         }
         return ResponseEntity.status(404).build(); //notFound
 
